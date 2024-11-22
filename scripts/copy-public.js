@@ -2,7 +2,7 @@ const fs = require('fs-extra');
 const path = require('path');
 
 const src = path.join(__dirname, '..', 'node_modules', 'mediainfo.js', 'dist', 'MediaInfoModule.wasm');
-const dest = path.join(__dirname, '..', 'public', 'MediaInfoModule.wasm.binary');
+const dest = path.join(__dirname, '..', 'public', 'MediaInfoModule.wasm');
 
 // Ensure the `public` directory exists
 fs.ensureDir(path.join(__dirname, '..', 'public'))
