@@ -1,7 +1,7 @@
 'use client';
 
-import type { RuntimeUniqueKey } from "@/types/RuntimeUniqueKey";
-import type { UniqueFile } from "@/types/UniqueFile";
+import type { RuntimeUniqueKey } from '@/types/RuntimeUniqueKey';
+import type { UniqueFile } from '@/types/UniqueFile';
 
 let key = 0;
 
@@ -13,6 +13,6 @@ export function newUniqueFile(file: File, targetSize: number): UniqueFile {
   return {
     file,
     targetSize,
-    unique: newUniqueKey()
+    unique: newUniqueKey(),
   } satisfies UniqueFile;
 }
