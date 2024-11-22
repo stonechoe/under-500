@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "format": "prettier --write \"**/*.ts\" \"**/*.tsx\"",
+    "build": "npm run copy-public && next build",
+    "copy-public": "node scripts/copy-public.js",
     "start": "next start",
     "lint": "next lint"
   },
@@ -12,6 +14,8 @@
     "@ffmpeg/ffmpeg": "^0.12.10",
     "@ffmpeg/types": "^0.12.2",
     "@tanstack/react-query": "^5.60.6",
+    "fs-extra": "^11.2.0",
+    "mediainfo.js": "^0.3.3",
     "next": "15.0.3",
     "react": "^18",
     "react-dom": "^18",
@@ -26,6 +30,8 @@
     "eslint": "^9",
     "eslint-config-next": "15.0.3",
     "postcss": "^8",
+    "prettier": "^3.3.3",
+    "prettier-plugin-tailwindcss": "^0.6.9",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
   }
