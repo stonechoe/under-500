@@ -4,16 +4,16 @@
 
 :root {
 
-  --base-000: #ffffff;
-  --base-100: #f7f7f7;
-  --base-200: #eaeaea;
-  --base-300: #d9d9d9;
-  --base-400: #bfbfbf;
-  --base-500: #8c8c8c;
-  --base-600: #595959;
-  --base-700: #434343;
-  --base-800: #262626;
-  --base-900: #171717;
+  --base-000: 255 255 255;
+  --base-100: 247 247 247;
+  --base-200: 234 234 234;
+  --base-300: 217 217 217;
+  --base-400: 191 191 191;
+  --base-500: 140 140 140;
+  --base-600: 89 89 89;
+  --base-700: 67 67 67;
+  --base-800: 38 38 38;
+  --base-900: 23 23 23;
 
   --background: var(--base-000);
   --foreground: var(--base-900);
@@ -21,21 +21,21 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --base-000: #171717;
-    --base-100: #262626;
-    --base-200: #434343;
-    --base-300: #595959;
-    --base-400: #8c8c8c;
-    --base-500: #bfbfbf;
-    --base-600: #d9d9d9;
-    --base-700: #eaeaea;
-    --base-800: #f7f7f7;
-    --base-900: #ffffff;
+    --base-000: 23 23 23;
+    --base-100: 38 38 38;
+    --base-200: 67 67 67;
+    --base-300: 89 89 89;
+    --base-400: 140 140 140;
+    --base-500: 191 191 191;
+    --base-600: 217 217 217;
+    --base-700: 234 234 234;
+    --base-800: 247 247 247;
+    --base-900: 255 255 255;
   }
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
+  color: rgb(var(--foreground));
+  background: rgb(var(--background));
   font-family: Arial, Helvetica, sans-serif;
 }
