@@ -9,7 +9,6 @@ import { newUniqueFile } from '@/utils/unique';
 import type { UniqueFile } from '@/types/UniqueFile';
 import AddVideoFilesButton from '@/components/AddVideoFilesButton';
 import VideoIcon from '~/video.svg';
-import Image from 'next/image';
 
 export default function Home() {
   const [targetSize, setTargetSize] = useState(10);
