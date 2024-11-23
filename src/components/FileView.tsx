@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import tw from 'tailwind-styled-components';
 import { FFmpeg } from '@ffmpeg/ffmpeg';
 import mediaInfoFactory, { type MediaInfoResult } from 'mediainfo.js';
+import FileIcon from '~/file.svg';
 
 interface Props {
   uniqueFile: UniqueFile;
@@ -31,17 +32,6 @@ async function analyzeFile(file: UniqueFile): Promise<MediaInfoResult> {
   info.close();
 
   return finfo;
-}
-
-async function getVideoBitRate(finfo: MediaInfoResult): Promise<number> {
-  return (
-    finfo.media?.track.reduce((prev, track) => {
-      if (track['@type'] === 'Video') {
-        return prev + (track.BitRate || 0);
-      }
-      return prev;
-    }, 0) || 0
-  );
 }
 
 async function getAudioBitRate(finfo: MediaInfoResult): Promise<number> {
@@ -70,23 +60,14 @@ async function getLength(finfo: MediaInfoResult): Promise<number> {
 
 async function compressFile(file: UniqueFile, onLog: (_: string) => void) {
   const finfo = await analyzeFile(file);
-
-  console.log('video bitrate', await getVideoBitRate(finfo));
-  console.log('audio bitrate', await getAudioBitRate(finfo));
-  console.log('length', await getLength(finfo));
-
+  
   const ffmpeg = new FFmpeg();
-
   ffmpeg.on('log', (log) => onLog(log.message));
 
   await ffmpeg.load().catch((e) => {
     console.error(e);
     return Promise.reject(e);
   });
-
-  // fail if not video
-
-  // fail if no walker
 
   const target_size_mb = file.targetSize; // 목표 크기 (25MB)
   const target_size = target_size_mb * 1000 * 1000 * 8; // 목표 크기 (25MB -> 25 * 1000 * 1000 * 8 bit)
@@ -129,9 +110,9 @@ async function compressFile(file: UniqueFile, onLog: (_: string) => void) {
   return data;
 }
 
-const ViewLayout = tw.a`flex flex-col border border-base-200 p-4 gap-2 w-fit h-fit rounded-xl bg-base-000 hover:bg-base-100 transition-all cursor-pointer overflow-hidden`;
-const Terminal = tw.pre`text-sm text-base-300 rounded-lg p-4 bg-base-100 break-all whitespace-break-spaces before:content-[">"] before:inline before:text-base-900 before:pr-4 before:mr-4`;
-const FileName = tw.div`text-lg text-base-900 line-clamp-1`;
+const ViewLayout = tw.a`flex flex-col border border-base-200 p-4 gap-2 w-96 rounded-xl bg-base-000 hover:bg-base-100 transition-all cursor-pointer overflow-hidden`;
+const Terminal = tw.pre`text-sm text-base-600 rounded-lg p-4 bg-base-100 break-all whitespace-break-spaces before:content-[">"] before:inline before:text-base-900 before:pr-4 before:mr-4 line-clamp-3`;
+const FileName = tw.div`text-lg text-base-900 line-clamp-1 flex flex-row gap-2 items-center`;
 const Chip = tw.div`bg-base-100 text-base-900 rounded-full px-2 py-1 text-xs w-fit`;
 
 function RawFileView({ uniqueFile }: Props) {
@@ -151,16 +132,16 @@ function RawFileView({ uniqueFile }: Props) {
 
       const a = ref.current ? ref.current : document.createElement('a');
 
-      a .href = url;
-      a .download = uniqueFile.file.name;
-      a .click();
+      a.href = url;
+      a.download = uniqueFile.file.name;
+      a.click();
     }
   }, [isSuccess, data]);
 
   if (error)
     return (
-      <ViewLayout ref={ref} className='cursor-not-allowed'>
-        <FileName>{uniqueFile.file.name}</FileName>
+      <ViewLayout ref={ref} className="cursor-not-allowed">
+        <FileName><FileIcon />{uniqueFile.file.name}</FileName>
         <div className="flex flex-row p-2">
           <Chip>to {uniqueFile.targetSize}MB</Chip>
           <Chip className="bg-red-500">Error</Chip>
@@ -171,8 +152,8 @@ function RawFileView({ uniqueFile }: Props) {
 
   if (isPending)
     return (
-      <ViewLayout ref={ref} className='cursor-progress'>
-        <FileName>{uniqueFile.file.name}</FileName>
+      <ViewLayout ref={ref} className="cursor-progress">
+        <FileName><FileIcon />{uniqueFile.file.name}</FileName>
         <div className="flex flex-row p-2">
           <Chip>
             {'->'} {uniqueFile.targetSize}MB
@@ -185,8 +166,8 @@ function RawFileView({ uniqueFile }: Props) {
 
   if (!data)
     return (
-      <ViewLayout ref={ref} className='cursor-not-allowed'>
-        <FileName>{uniqueFile.file.name}</FileName>
+      <ViewLayout ref={ref} className="cursor-not-allowed">
+        <FileName><FileIcon />{uniqueFile.file.name}</FileName>
         <div className="flex flex-row p-2">
           <Chip>
             {'->'} {uniqueFile.targetSize}MB
@@ -199,7 +180,7 @@ function RawFileView({ uniqueFile }: Props) {
 
   return (
     <ViewLayout ref={ref}>
-      <FileName>{uniqueFile.file.name}</FileName>
+      <FileName><FileIcon />{uniqueFile.file.name}</FileName>
       <div className="flex flex-row p-2">
         <Chip>
           {'->'} {uniqueFile.targetSize}MB

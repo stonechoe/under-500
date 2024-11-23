@@ -1,12 +1,21 @@
 'use client';
-import { type PropsWithChildren, type DragEventHandler, useState } from 'react';
+import { type PropsWithChildren, type DragEventHandler, useCallback, useState } from 'react';
 
 interface Props extends PropsWithChildren {
-  onDrop: DragEventHandler<HTMLDivElement>;
+  onFiles: (files: FileList) => void;
 }
 
-export default function DragDrop({ onDrop, children }: Props) {
+export default function DragDrop({ onFiles, children }: Props) {
   const [dragging, setDragging] = useState(false);
+
+  const handleDrop : DragEventHandler<HTMLDivElement> = useCallback(
+    (e) => {
+      if (e.dataTransfer?.files) {
+        onFiles(e.dataTransfer.files);
+      }
+    },
+    [],
+  );
 
   return (
     <div
@@ -25,7 +34,7 @@ export default function DragDrop({ onDrop, children }: Props) {
       onDrop={(e) => {
         setDragging(false);
         e.preventDefault();
-        onDrop(e);
+        handleDrop(e);
       }}
       className="relative flex h-full w-full flex-col"
     >
