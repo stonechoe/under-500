@@ -59,7 +59,7 @@ function RawFileView({ uniqueFile }: Props) {
   useEffect(() => {
     if (isSuccess) {
       // downaload the file : FileData
-      const blob = new Blob([data], { type: 'video/mp4' });
+      const blob = new Blob([data], { type: data.type });
       const url = URL.createObjectURL(blob);
 
       const a = ref.current ? ref.current : document.createElement('a');
