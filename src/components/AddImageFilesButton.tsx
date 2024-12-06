@@ -8,7 +8,7 @@ interface Props extends HTMLProps<HTMLButtonElement> {
   onClick?: never;
 }
 
-export default function AddVideoFilesButton({ onFiles, children, ...rest }: Props) {
+export default function AddImageFilesButton({ onFiles, children, ...rest }: Props) {
   const ref = useRef<HTMLInputElement>(null);
 
   const openDialog = useCallback(() => {
@@ -32,7 +32,7 @@ export default function AddVideoFilesButton({ onFiles, children, ...rest }: Prop
         className="hidden"
         onChange={handleChange}
         type="file"
-        accept="video/*"
+        accept="image/*"
         multiple
       />
       <button
