@@ -4,8 +4,7 @@ import { memo, useEffect, useRef, useState } from 'react';
 import type { UniqueFile } from '@/types/UniqueFile';
 import { useQuery } from '@tanstack/react-query';
 import tw from 'tailwind-styled-components';
-import { FFmpeg } from '@ffmpeg/ffmpeg';
-import mediaInfoFactory, { type MediaInfoResult } from 'mediainfo.js';
+import imageCompression from 'browser-image-compression';
 import FileIcon from '~/file.svg';
 
 interface Props {
@@ -14,99 +13,32 @@ interface Props {
 
 ////////////////////////////////////////////////////////////////////////
 
-async function analyzeFile(file: UniqueFile): Promise<MediaInfoResult> {
-  const info = await mediaInfoFactory({
-    format: 'object',
-    locateFile: (path, prefix) => {
-      if (path.endsWith('.wasm')) {
-        return `/MediaInfoModule.wasm`; // 파일 이름 수정
-      }
-      return prefix + path;
-    },
-  });
-  const buffff = new Uint8Array(await file.file.arrayBuffer());
-  const finfo = await info.analyzeData(
-    buffff.length,
-    (size: number, offset: number) => buffff.slice(offset, offset + size),
-  );
-  info.close();
-
-  return finfo;
+function roundAt2(num: number) {
+  return Math.round((num + Number.EPSILON) * 100) / 100
 }
-
-async function getAudioBitRate(finfo: MediaInfoResult): Promise<number> {
-  return (
-    finfo.media?.track.reduce((prev, track) => {
-      if (track['@type'] === 'Audio') {
-        return prev + (track.BitRate || 0);
-      }
-      return prev;
-    }, 0) || 0
-  );
-}
-
-async function getLength(finfo: MediaInfoResult): Promise<number> {
-  return (
-    finfo.media?.track.reduce((prev, track) => {
-      if (track['@type'] === 'General') {
-        return prev + (track.Duration || 0);
-      }
-      return prev;
-    }, 0) || 0
-  );
-}
-
-////////////////////////////////////////////////////////////////////////
 
 async function compressFile(file: UniqueFile, onLog: (_: string) => void) {
-  const finfo = await analyzeFile(file);
+
+  const data = await imageCompression(file.file, {
+    initialQuality: 0.1,
+    // useWebWorker: true,
+    // use decimal scale to be safe (e.g. non windows)
+    maxSizeMB: file.targetSize * (1000 / 1024 ) * (1000 * 1024),
+    maxIteration: Number.POSITIVE_INFINITY,
+    onProgress: (progress) => {
+      onLog(`진행률: ${progress}%`);
+    }
+  })
+
+  if (data.size >= file.targetSize * (1000 * 1000)) {
+    onLog(`파일 크기를 더 이상 줄일 수 없습니다. ${roundAt2(data.size / 1000 / 1000)}KB 에서 종료합니다.`);
+    return data;
+  } else {
+
+    onLog(`파일 크기를 ${roundAt2(data.size / 1000 / 1000)}KB 로 줄였습니다.`);
+  }
+
   
-  const ffmpeg = new FFmpeg();
-  ffmpeg.on('log', (log) => onLog(log.message));
-
-  await ffmpeg.load().catch((e) => {
-    console.error(e);
-    return Promise.reject(e);
-  });
-
-  const target_size_mb = file.targetSize; // 목표 크기 (25MB)
-  const target_size = target_size_mb * 1000 * 1000 * 8; // 목표 크기 (25MB -> 25 * 1000 * 1000 * 8 bit)
-  // const length = `ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "${file}"`
-  const length_round_up = Math.ceil(await getLength(finfo));
-  const total_bitrate = Math.ceil(target_size / length_round_up);
-  const audio_bitrate = await getAudioBitRate(finfo); // (( 128 * 1000 )) //# 128kbps 오디오
-  const target_video_bitrate = total_bitrate - audio_bitrate;
-  const command = `ffmpeg -i "${file}" -b:v ${target_video_bitrate} -maxrate:v ${target_video_bitrate} -bufsize:v ${target_size / 20} -b:a ${audio_bitrate} "${file}-${target_size_mb}mb.mp4"`;
-  console.log(command);
-
-  const buf = new Uint8Array(await file.file.arrayBuffer());
-  await ffmpeg.writeFile('input', buf).catch((e) => {
-    console.error(e);
-    return Promise.reject(e);
-  });
-  await ffmpeg
-    .exec([
-      '-i',
-      'input',
-      '-b:v',
-      String(target_video_bitrate),
-      '-maxrate:v',
-      String(target_video_bitrate),
-      '-bufsize:v',
-      String(target_size / 20),
-      '-b:a',
-      String(audio_bitrate),
-      'output.mp4',
-    ])
-    .catch((e) => {
-      console.error(e);
-      return Promise.reject(e);
-    });
-  const data = await ffmpeg.readFile('output.mp4').catch((e) => {
-    console.error(e);
-    return Promise.reject(e);
-  });
-
   return data;
 }
 
