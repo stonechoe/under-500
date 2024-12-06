@@ -26,7 +26,7 @@ export default function Home() {
     <DragDrop onFiles={handleFiles}>
       <div className="row-start-2 flex h-full w-full grow flex-col items-center gap-8 p-16 sm:items-start">
         <main className="flex grow flex-col gap-4 font-[family-name:var(--font-geist-mono)] text-base-600">
-          <h1 className="text-4xl font-extrabold inline-flex flex-row items-center gap-2">Under 500KB</h1>
+          <h1 className="text-4xl font-extrabold inline-flex flex-row items-center gap-2">{'<='}500KB</h1>
 
           <p>이미지를 500KB 밑으로 압축하세요. 드래그 앤 드랍 하거나 <AddImageFilesButton onFiles={handleFiles} className='before:content-["📁"] before:hover:content-["📂"] p-2 border border-base-100 rounded-lg transition-colors hover:bg-base-100 underline text-base-900'> 파일 추가</AddImageFilesButton>.</p>
 

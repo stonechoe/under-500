@@ -14,8 +14,8 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: 'Instant Video Compressor',
-  description: 'Compress your video using WebAssembly in your browser.',
+  title: 'Under 500KB',
+  description: 'Compress your images to under 500KB using only client-side code.',
 };
 
 export default function RootLayout({
